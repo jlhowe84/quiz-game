@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String         @id @default(cuid())
+  username            String         @unique
+  email               String         @unique
+  ageRange            String
+  educationLevel      String
+  skillLevel          String
+  interests           String? // JSON string
+  learningGoals       String
+  preferredComplexity String
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  quizSessions        QuizSession[]
+  userProgress        UserProgress[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  icon        String?
+  color       String?
+  createdAt   DateTime   @default(now())
+
+  questions   Question[]
+  quizSessions QuizSession[]
+  userProgress UserProgress[]
+
+  @@map("categories")
+}
+
+model Question {
+  id                    String   @id @default(cuid())
+  categoryId            String
+  question              String
+  options               String   // JSON string
+  correctAnswer         String
+  explanation           String?
+  difficulty            Int
+  ageAppropriateness    String?
+  educationCompatibility String?
+  interestTags          String?  // JSON string
+  createdAt             DateTime @default(now())
+
+  category              Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@map("questions")
+}
+
+model QuizSession {
+  id         String   @id @default(cuid())
+  userId     String
+  categoryId String
+  score      Int?
+  timeTaken  Int?     // in seconds
+  completedAt DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@map("quiz_sessions")
+}
+
+model UserProgress {
+  userId           String
+  categoryId       String
+  questionsAnswered Int     @default(0)
+  correctAnswers   Int     @default(0)
+  averageTime      Float?
+  bestScore        Int?
+  lastPlayed       DateTime?
+
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category         Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([userId, categoryId])
+  @@map("user_progress")
+}

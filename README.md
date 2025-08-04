@@ -1,36 +1,167 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Quiz Master
+
+A personalized quiz game built with Next.js, TypeScript, and SQLite that adapts questions based on user age, education level, and interests.
+
+## Features
+
+- **Personalized Experience**: Collects player profile (age, education, interests) to tailor questions
+- **Category Selection**: Multiple quiz categories with visual cards
+- **AI-Powered Questions**: OpenAI integration for dynamic question generation
+- **Progress Tracking**: Save and track user performance across sessions
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
+- **Simple & Lightweight**: SQLite database with zero configuration
+
+## Tech Stack
+
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes (serverless)
+- **Database**: SQLite with Prisma ORM
+- **State Management**: Zustand
+- **Animations**: Framer Motion
+- **Authentication**: NextAuth.js
+- **Deployment**: Vercel
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ 
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd quiz-game
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.example .env
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Edit `.env` and add your configuration:
+```env
+DATABASE_URL="file:./dev.db"
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-secret-key-here"
+OPENAI_API_KEY="your-openai-api-key-here"
+```
 
-## Learn More
+4. Set up the database:
+```bash
+npx prisma generate
+npx prisma db push
+```
 
-To learn more about Next.js, take a look at the following resources:
+5. Run the development server:
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+quiz-game/
+├── src/
+│   ├── app/                 # Next.js App Router
+│   │   ├── api/            # API routes
+│   │   │   ├── categories/ # Category endpoints
+│   │   │   └── questions/  # Question endpoints
+│   │   ├── globals.css     # Global styles
+│   │   ├── layout.tsx      # Root layout
+│   │   └── page.tsx        # Home page
+│   ├── components/         # React components
+│   │   ├── CategoryCard.tsx
+│   │   └── PlayerProfileForm.tsx
+│   ├── lib/               # Utility functions
+│   │   └── db.ts          # Database connection
+│   ├── store/             # State management
+│   │   └── quiz-store.ts  # Zustand store
+│   └── types/             # TypeScript definitions
+│       └── index.ts
+├── prisma/                # Database schema
+│   └── schema.prisma
+├── public/                # Static assets
+└── package.json
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Database Schema
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The application uses SQLite with the following main tables:
+
+- **users**: User profiles and preferences
+- **categories**: Quiz categories
+- **questions**: Quiz questions with metadata
+- **quiz_sessions**: Individual quiz attempts
+- **user_progress**: User performance tracking
+
+## Development Phases
+
+### Phase 1: MVP (Current)
+- ✅ Basic project setup
+- ✅ Player profile collection
+- ✅ Category selection interface
+- ✅ Database schema
+- ✅ Basic UI components
+
+### Phase 2: Core Functionality
+- [ ] Quiz session management
+- [ ] Question display and answering
+- [ ] Timer functionality
+- [ ] Results and scoring
+- [ ] Basic analytics
+
+### Phase 3: AI Integration
+- [ ] OpenAI API integration
+- [ ] Dynamic question generation
+- [ ] Profile-based question filtering
+- [ ] Difficulty adaptation
+
+### Phase 4: Advanced Features
+- [ ] User authentication
+- [ ] Progress tracking
+- [ ] Social features
+- [ ] Mobile optimization
+
+## API Endpoints
+
+### Categories
+- `GET /api/categories` - Fetch all categories
+- `POST /api/categories` - Create new category
+
+### Questions
+- `GET /api/questions` - Fetch questions with filters
+- `POST /api/questions` - Create new question
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Deployment
+
+The application is designed to be deployed on Vercel:
+
+1. Connect your GitHub repository to Vercel
+2. Set up environment variables in Vercel dashboard
+3. Deploy automatically on push to main branch
+
+## Support
+
+For support, email support@quizmaster.com or create an issue in the repository.
