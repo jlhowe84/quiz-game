@@ -72,6 +72,7 @@ export default function Home() {
 
   const handleCategorySelect = (category: Category) => {
     setSelectedCategory(category)
+    setQuestionCount(10) // Default to 10 questions
     setCurrentStep('quiz')
   }
 
@@ -207,50 +208,7 @@ export default function Home() {
             </motion.div>
           )}
 
-          {currentStep === 'quiz' && !selectedCategory && (
-            <motion.div
-              key="quiz-selection"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.3 }}
-              className="max-w-2xl mx-auto text-center"
-            >
-              <div className="bg-white rounded-lg shadow-lg p-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                  Ready to Start!
-                </h2>
-                <p className="text-gray-600 mb-6">
-                  You&apos;ve selected <strong>{selectedCategory?.name}</strong> category.
-                  <br />
-                  Your quiz will be personalized based on your profile.
-                </p>
-                
-                <div className="space-y-4">
-                  <button
-                    onClick={() => handleStartQuiz(10)}
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-                  >
-                    Start Quiz (10 Questions)
-                  </button>
-                  
-                  <button
-                    onClick={() => handleStartQuiz(20)}
-                    className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-                  >
-                    Start Quiz (20 Questions)
-                  </button>
-                  
-                  <button
-                    onClick={handleBackToCategories}
-                    className="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-                  >
-                    Choose Different Category
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          )}
+
         </AnimatePresence>
       </div>
     </div>
