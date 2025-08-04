@@ -200,7 +200,10 @@ export default function QuizSession({
     setQuestions(generatedQuestions)
     startQuiz(generatedQuestions)
     setIsLoading(false)
-  }, [category, questionCount, startQuiz])
+    
+    // Log profile info for debugging (will be used for AI integration later)
+    console.log('Player profile:', playerProfile)
+  }, [category, questionCount, startQuiz, playerProfile])
 
   const handleAnswer = (answer: string) => {
     answerQuestion(answer)

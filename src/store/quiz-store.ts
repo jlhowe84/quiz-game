@@ -119,14 +119,14 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     }, 1000)
     
     // Store timer reference (you might want to store this in a ref)
-    ;(get as any).timer = timer
+    ;(get as { timer?: NodeJS.Timeout }).timer = timer
   },
   
   stopTimer: () => {
-    const timer = (get as any).timer
+    const timer = (get as { timer?: NodeJS.Timeout }).timer
     if (timer) {
       clearInterval(timer)
-      ;(get as any).timer = null
+      ;(get as { timer?: NodeJS.Timeout }).timer = undefined
     }
   },
   

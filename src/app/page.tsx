@@ -221,7 +221,7 @@ export default function Home() {
                   Ready to Start!
                 </h2>
                 <p className="text-gray-600 mb-6">
-                  You've selected <strong>{selectedCategory?.name}</strong> category.
+                  You&apos;ve selected <strong>{selectedCategory?.name}</strong> category.
                   <br />
                   Your quiz will be personalized based on your profile.
                 </p>

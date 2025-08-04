@@ -105,7 +105,7 @@ export default function PlayerProfileForm({ onSubmit }: PlayerProfileFormProps) 
         {/* Age Range */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            What's your age range?
+            What&apos;s your age range?
           </label>
           <div className="grid grid-cols-2 gap-3">
             {ageRanges.map((range) => (
@@ -130,7 +130,7 @@ export default function PlayerProfileForm({ onSubmit }: PlayerProfileFormProps) 
         {/* Education Level */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            What's your education level?
+            What&apos;s your education level?
           </label>
           <div className="grid grid-cols-2 gap-3">
             {educationLevels.map((level) => (
@@ -205,7 +205,7 @@ export default function PlayerProfileForm({ onSubmit }: PlayerProfileFormProps) 
         {/* Learning Goals */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            What's your main goal?
+            What&apos;s your main goal?
           </label>
           <div className="grid grid-cols-2 gap-3">
             {learningGoals.map((goal) => (

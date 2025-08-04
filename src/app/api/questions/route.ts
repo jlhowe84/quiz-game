@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     const educationLevel = searchParams.get('educationLevel')
     const limit = searchParams.get('limit') || '10'
 
-    const where: any = {}
+    const where: Record<string, unknown> = {}
 
     if (categoryId) {
       where.categoryId = categoryId
