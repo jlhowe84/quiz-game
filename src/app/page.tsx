@@ -76,10 +76,7 @@ export default function Home() {
     setCurrentStep('quiz')
   }
 
-  const handleStartQuiz = (count: number) => {
-    setQuestionCount(count)
-    setCurrentStep('quiz')
-  }
+
 
   const handleBackToCategories = () => {
     setCurrentStep('categories')
