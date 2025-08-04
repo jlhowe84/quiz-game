@@ -12,6 +12,7 @@ interface QuizSessionProps {
   category: Category
   playerProfile: PlayerProfile
   questionCount: number
+  difficulty: 'easy' | 'medium' | 'hard'
   onBackToCategories: () => void
   onNewQuiz: () => void
 }
@@ -185,34 +186,50 @@ const generateMockQuestions = (category: Category, count: number): QuizQuestionT
 const generateAIQuestions = async (
   category: Category, 
   playerProfile: PlayerProfile, 
-  count: number
+  count: number,
+  difficultyLevel: number
 ): Promise<QuizQuestionType[]> => {
   try {
-    // Determine difficulty based on player profile
-    const difficulty = getDifficultyFromProfile(playerProfile)
+    console.log('🔍 Attempting AI question generation...')
+    console.log('Category:', category.name)
+    console.log('Player Profile:', playerProfile)
+    console.log('Difficulty Level:', difficultyLevel)
+    
+    const requestBody = {
+      category: category.name,
+      playerProfile,
+      difficulty: difficultyLevel,
+      count
+    }
+    
+    console.log('Request body:', requestBody)
     
     const response = await fetch('/api/ai-questions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        category: category.name,
-        playerProfile,
-        difficulty,
-        count
-      }),
+      body: JSON.stringify(requestBody),
     })
 
+    console.log('Response status:', response.status)
+    console.log('Response ok:', response.ok)
+
     if (!response.ok) {
-      throw new Error(`AI generation failed: ${response.statusText}`)
+      const errorText = await response.text()
+      console.error('Response error:', errorText)
+      throw new Error(`AI generation failed: ${response.statusText} - ${errorText}`)
     }
 
     const data = await response.json()
+    console.log('AI Response data:', data)
     
     if (!data.success || !data.questions) {
       throw new Error('Invalid response from AI service')
     }
+
+    console.log('✅ AI questions generated successfully!')
+    console.log('Number of questions:', data.questions.length)
 
     // Convert AI questions to our format
     return data.questions.map((q: any, index: number) => ({
@@ -225,7 +242,7 @@ const generateAIQuestions = async (
     }))
 
   } catch (error) {
-    console.error('AI question generation failed, falling back to mock questions:', error)
+    console.error('❌ AI question generation failed, falling back to mock questions:', error)
     return generateMockQuestions(category, count)
   }
 }
@@ -255,6 +272,7 @@ export default function QuizSession({
   category,
   playerProfile,
   questionCount,
+  difficulty,
   onBackToCategories,
   onNewQuiz,
 }: QuizSessionProps) {
@@ -272,8 +290,17 @@ export default function QuizSession({
       setIsLoading(true)
       setIsAIGenerating(true)
       try {
+        // Convert difficulty string to number
+        const difficultyMap = { easy: 3, medium: 6, hard: 9 }
+        const difficultyLevel = difficultyMap[difficulty]
+        
+        console.log('🔍 Attempting AI question generation...')
+        console.log('Category:', category.name)
+        console.log('Player Profile:', playerProfile)
+        console.log('Selected difficulty:', difficulty, '-> Level:', difficultyLevel)
+        
         // Try AI generation first, fallback to mock questions
-        const generatedQuestions = await generateAIQuestions(category, playerProfile, questionCount)
+        const generatedQuestions = await generateAIQuestions(category, playerProfile, questionCount, difficultyLevel)
         setQuestions(generatedQuestions)
         startQuiz(generatedQuestions)
         setIsAIGenerated(true)
@@ -291,7 +318,7 @@ export default function QuizSession({
     }
 
     loadQuestions()
-  }, [category, questionCount, startQuiz, playerProfile])
+  }, [category, questionCount, startQuiz, playerProfile, difficulty])
 
   const handleAnswer = (answer: string) => {
     answerQuestion(answer)

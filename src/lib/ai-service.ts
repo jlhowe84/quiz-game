@@ -23,12 +23,18 @@ export interface AIQuestion {
 export class AIService {
   static async generateQuestions(request: AIQuestionRequest): Promise<AIQuestion[]> {
     try {
+      console.log('🤖 AIService.generateQuestions called')
+      console.log('API Key available:', !!process.env.OPENAI_API_KEY)
+      
       const { category, playerProfile, difficulty, count } = request
+      console.log('Request params:', { category, difficulty, count })
 
       const prompt = this.buildPrompt(category, playerProfile, difficulty, count)
+      console.log('Generated prompt length:', prompt.length)
       
+      console.log('🔄 Calling OpenAI API...')
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-3.5-turbo",
         messages: [
           {
             role: "system",
@@ -43,14 +49,31 @@ export class AIService {
         max_tokens: 2000,
       })
 
+      console.log('✅ OpenAI API response received')
       const response = completion.choices[0]?.message?.content
       if (!response) {
         throw new Error('No response from OpenAI')
       }
 
-      return this.parseQuestions(response, count)
+      console.log('Response length:', response.length)
+      console.log('Response preview:', response.substring(0, 200) + '...')
+
+      const questions = this.parseQuestions(response, count)
+      console.log('✅ Parsed questions:', questions.length)
+      
+      return questions
     } catch (error) {
-      console.error('Error generating questions:', error)
+      console.error('❌ Error in AIService.generateQuestions:', error)
+      
+      // Handle specific OpenAI errors
+      if (error && typeof error === 'object' && 'status' in error) {
+        if (error.status === 429) {
+          throw new Error('OpenAI quota exceeded. Please check your billing or try again later.')
+        } else if (error.status === 401) {
+          throw new Error('OpenAI API key is invalid. Please check your configuration.')
+        }
+      }
+      
       throw new Error('Failed to generate questions')
     }
   }
@@ -135,10 +158,47 @@ Return only the JSON array of questions, no additional text.
         console.warn(`Expected ${expectedCount} questions, got ${questions.length}`)
       }
 
-      return questions.slice(0, expectedCount)
+      // Shuffle the options for each question
+      const shuffledQuestions = questions.slice(0, expectedCount).map((question, index) => {
+        console.log(`🔄 Shuffling question ${index + 1}:`, {
+          original: question.options,
+          correctAnswer: question.correctAnswer
+        })
+        
+        const shuffled = this.shuffleQuestionOptions(question)
+        
+        console.log(`✅ Shuffled question ${index + 1}:`, {
+          shuffled: shuffled.options,
+          correctAnswer: shuffled.correctAnswer
+        })
+        
+        return shuffled
+      })
+
+      return shuffledQuestions
     } catch (error) {
       console.error('Error parsing questions:', error)
       throw new Error('Failed to parse generated questions')
+    }
+  }
+
+  private static shuffleQuestionOptions(question: AIQuestion): AIQuestion {
+    // Create a copy of the options array
+    const shuffledOptions = [...question.options]
+    
+    // Fisher-Yates shuffle algorithm
+    for (let i = shuffledOptions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[shuffledOptions[i], shuffledOptions[j]] = [shuffledOptions[j], shuffledOptions[i]]
+    }
+    
+    // Find the new position of the correct answer
+    const newCorrectAnswer = question.correctAnswer
+    
+    return {
+      ...question,
+      options: shuffledOptions,
+      correctAnswer: newCorrectAnswer // Keep the same correct answer text
     }
   }
 
@@ -156,7 +216,7 @@ Respond with only "VALID" or "INVALID" and a brief reason.
 `
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-4",
+        model: "gpt-3.5-turbo",
         messages: [
           {
             role: "system",

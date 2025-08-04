@@ -55,10 +55,29 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     if (!quizState || !questions[currentQuestionIndex]) return
     
     const currentQuestion = questions[currentQuestionIndex]
-    const isCorrect = answer === currentQuestion.correctAnswer
+    
+    // Normalize answers for comparison (trim whitespace, lowercase)
+    const normalizedUserAnswer = answer.trim().toLowerCase()
+    const normalizedCorrectAnswer = currentQuestion.correctAnswer.trim().toLowerCase()
+    const isCorrect = normalizedUserAnswer === normalizedCorrectAnswer
+    
+    console.log('🔍 Answer Debug:', {
+      userAnswer: answer,
+      correctAnswer: currentQuestion.correctAnswer,
+      normalizedUserAnswer,
+      normalizedCorrectAnswer,
+      questionText: currentQuestion.question,
+      isCorrect: isCorrect
+    })
     
     const newAnswers = { ...quizState.answers, [currentQuestionIndex]: answer }
     const newScore = isCorrect ? quizState.score + 1 : quizState.score
+    
+    console.log('📊 Score Update:', {
+      previousScore: quizState.score,
+      newScore: newScore,
+      isCorrect: isCorrect
+    })
     
     set({
       quizState: {
@@ -94,12 +113,21 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     
     get().stopTimer()
     
+    const finalState = {
+      ...quizState,
+      isComplete: true,
+      timeElapsed: get().timeElapsed,
+    }
+    
+    console.log('🏁 Final Quiz State:', {
+      score: finalState.score,
+      totalQuestions: finalState.totalQuestions,
+      answers: finalState.answers,
+      percentage: Math.round((finalState.score / finalState.totalQuestions) * 100)
+    })
+    
     set({
-      quizState: {
-        ...quizState,
-        isComplete: true,
-        timeElapsed: get().timeElapsed,
-      },
+      quizState: finalState,
     })
   },
   

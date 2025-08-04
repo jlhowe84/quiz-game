@@ -11,10 +11,11 @@ export default function Home() {
   const [currentStep, setCurrentStep] = useState<'profile' | 'categories' | 'quiz'>('profile')
   const [playerProfile, setPlayerProfile] = useState<PlayerProfile | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
+  const [selectedDifficulty, setSelectedDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
   const [questionCount, setQuestionCount] = useState<number>(10)
 
-  // Mock categories for now - will be fetched from API
-  const mockCategories: Category[] = [
+  // All available categories
+  const allCategories: Category[] = [
     {
       id: '1',
       name: 'Sports',
@@ -63,15 +64,158 @@ export default function Home() {
       color: '#EC4899',
       createdAt: new Date(),
     },
+    {
+      id: '7',
+      name: 'Math',
+      description: 'Challenge yourself with mathematical concepts and problems',
+      icon: '🧮',
+      color: '#06B6D4',
+      createdAt: new Date(),
+    },
+    {
+      id: '8',
+      name: 'Literature',
+      description: 'Explore classic and contemporary literature',
+      icon: '📖',
+      color: '#84CC16',
+      createdAt: new Date(),
+    },
+    {
+      id: '9',
+      name: 'Art',
+      description: 'Discover the world of art and creativity',
+      icon: '🎨',
+      color: '#F97316',
+      createdAt: new Date(),
+    },
+    {
+      id: '10',
+      name: 'Music',
+      description: 'Test your knowledge of music theory and artists',
+      icon: '🎵',
+      color: '#A855F7',
+      createdAt: new Date(),
+    },
+    {
+      id: '11',
+      name: 'Cooking',
+      description: 'Explore culinary arts and food knowledge',
+      icon: '👨‍🍳',
+      color: '#DC2626',
+      createdAt: new Date(),
+    },
+    {
+      id: '12',
+      name: 'Travel',
+      description: 'Journey around the world through travel knowledge',
+      icon: '✈️',
+      color: '#059669',
+      createdAt: new Date(),
+    },
+    {
+      id: '13',
+      name: 'Animals',
+      description: 'Learn about wildlife and animal kingdom',
+      icon: '🦁',
+      color: '#D97706',
+      createdAt: new Date(),
+    },
+    {
+      id: '14',
+      name: 'Space',
+      description: 'Explore the cosmos and astronomy',
+      icon: '🚀',
+      color: '#7C3AED',
+      createdAt: new Date(),
+    },
+    {
+      id: '15',
+      name: 'Nature',
+      description: 'Discover the natural world around us',
+      icon: '🌿',
+      color: '#16A34A',
+      createdAt: new Date(),
+    },
+    {
+      id: '16',
+      name: 'Games',
+      description: 'Test your knowledge of video games and gaming',
+      icon: '🎮',
+      color: '#EA580C',
+      createdAt: new Date(),
+    },
+    {
+      id: '17',
+      name: 'Movies',
+      description: 'Challenge yourself with film knowledge',
+      icon: '🎭',
+      color: '#BE185D',
+      createdAt: new Date(),
+    },
+    {
+      id: '18',
+      name: 'Books',
+      description: 'Explore literature and reading knowledge',
+      icon: '📚',
+      color: '#0891B2',
+      createdAt: new Date(),
+    },
   ]
+
+  // Filter categories based on player's interests
+  const getFilteredCategories = (): Category[] => {
+    if (!playerProfile?.interests || playerProfile.interests.length === 0) {
+      return allCategories
+    }
+    
+    // Map interests to category names (case-insensitive)
+    const interestToCategoryMap: Record<string, string> = {
+      'sports': 'Sports',
+      'math': 'Math',
+      'science': 'Science',
+      'history': 'History',
+      'geography': 'Geography',
+      'literature': 'Literature',
+      'technology': 'Technology',
+      'entertainment': 'Entertainment',
+      'art': 'Art',
+      'music': 'Music',
+      'cooking': 'Cooking',
+      'travel': 'Travel',
+      'animals': 'Animals',
+      'space': 'Space',
+      'nature': 'Nature',
+      'games': 'Games',
+      'movies': 'Movies',
+      'books': 'Books',
+    }
+    
+    // Get category names that match user interests
+    const matchingCategories = playerProfile.interests.map(interest => 
+      interestToCategoryMap[interest.toLowerCase()]
+    ).filter(Boolean)
+    
+    // Filter categories to show matching ones first, then others
+    const matching = allCategories.filter(cat => 
+      matchingCategories.includes(cat.name)
+    )
+    const others = allCategories.filter(cat => 
+      !matchingCategories.includes(cat.name)
+    )
+    
+    return [...matching, ...others]
+  }
 
   const handleProfileSubmit = (profile: PlayerProfile) => {
     setPlayerProfile(profile)
     setCurrentStep('categories')
   }
 
-  const handleCategorySelect = (category: Category) => {
+  const handleCategorySelect = (category: Category, difficulty?: 'easy' | 'medium' | 'hard') => {
     setSelectedCategory(category)
+    if (difficulty) {
+      setSelectedDifficulty(difficulty)
+    }
     setQuestionCount(10) // Default to 10 questions
     setCurrentStep('quiz')
   }
@@ -163,9 +307,17 @@ export default function Home() {
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">
                   Choose Your Category
                 </h2>
-                <p className="text-gray-600">
-                  Based on your profile, here are some great categories to start with
-                </p>
+                {playerProfile?.interests && playerProfile.interests.length > 0 ? (
+                  <p className="text-gray-600">
+                    Based on your interests in <span className="font-semibold text-blue-600">
+                      {playerProfile.interests.join(', ')}
+                    </span>, here are some great categories to start with
+                  </p>
+                ) : (
+                  <p className="text-gray-600">
+                    Choose a category that interests you most
+                  </p>
+                )}
                 <button
                   onClick={handleBackToProfile}
                   className="mt-4 text-blue-600 hover:text-blue-800 underline"
@@ -175,14 +327,27 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {mockCategories.map((category) => (
-                  <CategoryCard
-                    key={category.id}
+                {getFilteredCategories().map((category, index) => {
+                  const isMatchingInterest = playerProfile?.interests?.some(interest => 
+                    interest.toLowerCase() === category.name.toLowerCase()
+                  )
+                  
+                  return (
+                    <motion.div
+                      key={category.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                                        <CategoryCard
                     category={category}
-                    onClick={() => handleCategorySelect(category)}
+                    onClick={(difficulty) => handleCategorySelect(category, difficulty)}
                     isSelected={selectedCategory?.id === category.id}
+                    isRecommended={isMatchingInterest}
                   />
-                ))}
+                    </motion.div>
+                  )
+                })}
               </div>
             </motion.div>
           )}
@@ -199,6 +364,7 @@ export default function Home() {
                 category={selectedCategory}
                 playerProfile={playerProfile}
                 questionCount={questionCount}
+                difficulty={selectedDifficulty}
                 onBackToCategories={handleBackToCategories}
                 onNewQuiz={() => setCurrentStep('categories')}
               />
