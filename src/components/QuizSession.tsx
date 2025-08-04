@@ -6,6 +6,7 @@ import { useQuizStore } from '@/store/quiz-store'
 import { QuizQuestion as QuizQuestionType, Category, PlayerProfile } from '@/types'
 import QuizQuestion from './QuizQuestion'
 import QuizResults from './QuizResults'
+import AIStatusIndicator from './AIStatusIndicator'
 
 interface QuizSessionProps {
   category: Category
@@ -15,7 +16,7 @@ interface QuizSessionProps {
   onNewQuiz: () => void
 }
 
-// Mock questions for now - will be replaced with API calls
+// Fallback mock questions if AI generation fails
 const generateMockQuestions = (category: Category, count: number): QuizQuestionType[] => {
   const mockQuestions: Record<string, QuizQuestionType[]> = {
     'Sports': [
@@ -180,6 +181,76 @@ const generateMockQuestions = (category: Category, count: number): QuizQuestionT
   return categoryQuestions.slice(0, count)
 }
 
+// Generate AI questions based on player profile
+const generateAIQuestions = async (
+  category: Category, 
+  playerProfile: PlayerProfile, 
+  count: number
+): Promise<QuizQuestionType[]> => {
+  try {
+    // Determine difficulty based on player profile
+    const difficulty = getDifficultyFromProfile(playerProfile)
+    
+    const response = await fetch('/api/ai-questions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        category: category.name,
+        playerProfile,
+        difficulty,
+        count
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`AI generation failed: ${response.statusText}`)
+    }
+
+    const data = await response.json()
+    
+    if (!data.success || !data.questions) {
+      throw new Error('Invalid response from AI service')
+    }
+
+    // Convert AI questions to our format
+    return data.questions.map((q: any, index: number) => ({
+      id: `ai-${Date.now()}-${index}`,
+      question: q.question,
+      options: q.options,
+      correctAnswer: q.correctAnswer,
+      explanation: q.explanation,
+      difficulty: q.difficulty
+    }))
+
+  } catch (error) {
+    console.error('AI question generation failed, falling back to mock questions:', error)
+    return generateMockQuestions(category, count)
+  }
+}
+
+// Determine difficulty based on player profile
+const getDifficultyFromProfile = (profile: PlayerProfile): number => {
+  const skillLevelMap: Record<string, number> = {
+    'Beginner': 2,
+    'Intermediate': 5,
+    'Advanced': 7,
+    'Expert': 9
+  }
+
+  const complexityMap: Record<string, number> = {
+    'Simple': 1,
+    'Moderate': 4,
+    'Challenging': 7
+  }
+
+  const baseDifficulty = skillLevelMap[profile.skillLevel] || 5
+  const complexityBonus = complexityMap[profile.preferredComplexity] || 0
+
+  return Math.min(10, Math.max(1, baseDifficulty + complexityBonus))
+}
+
 export default function QuizSession({
   category,
   playerProfile,
@@ -191,18 +262,35 @@ export default function QuizSession({
   const [isLoading, setIsLoading] = useState(true)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [isComplete, setIsComplete] = useState(false)
+  const [isAIGenerating, setIsAIGenerating] = useState(false)
+  const [isAIGenerated, setIsAIGenerated] = useState(false)
   
   const { quizState, startQuiz, answerQuestion, nextQuestion, completeQuiz, resetQuiz } = useQuizStore()
 
   useEffect(() => {
-    // Generate questions based on category and player profile
-    const generatedQuestions = generateMockQuestions(category, questionCount)
-    setQuestions(generatedQuestions)
-    startQuiz(generatedQuestions)
-    setIsLoading(false)
-    
-    // Log profile info for debugging (will be used for AI integration later)
-    console.log('Player profile:', playerProfile)
+    const loadQuestions = async () => {
+      setIsLoading(true)
+      setIsAIGenerating(true)
+      try {
+        // Try AI generation first, fallback to mock questions
+        const generatedQuestions = await generateAIQuestions(category, playerProfile, questionCount)
+        setQuestions(generatedQuestions)
+        startQuiz(generatedQuestions)
+        setIsAIGenerated(true)
+      } catch (error) {
+        console.error('Failed to load questions:', error)
+        // Fallback to mock questions
+        const mockQuestions = generateMockQuestions(category, questionCount)
+        setQuestions(mockQuestions)
+        startQuiz(mockQuestions)
+        setIsAIGenerated(false)
+      } finally {
+        setIsLoading(false)
+        setIsAIGenerating(false)
+      }
+    }
+
+    loadQuestions()
   }, [category, questionCount, startQuiz, playerProfile])
 
   const handleAnswer = (answer: string) => {
@@ -276,6 +364,7 @@ export default function QuizSession({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <AIStatusIndicator isGenerating={isAIGenerating} isAIGenerated={isAIGenerated} />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
