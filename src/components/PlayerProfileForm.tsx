@@ -114,7 +114,7 @@ export default function PlayerProfileForm({ onSubmit }: PlayerProfileFormProps) 
                 type="button"
                 onClick={() => setFormData(prev => ({ ...prev, ageRange: range.value }))}
                 className={`
-                  p-3 rounded-lg border-2 text-left transition-all
+                  p-3 rounded-lg border-2 text-left transition-all text-gray-700
                   ${formData.ageRange === range.value
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
                     : 'border-gray-200 hover:border-gray-300'
@@ -139,7 +139,7 @@ export default function PlayerProfileForm({ onSubmit }: PlayerProfileFormProps) 
                 type="button"
                 onClick={() => setFormData(prev => ({ ...prev, educationLevel: level.value }))}
                 className={`
-                  p-3 rounded-lg border-2 text-left transition-all
+                  p-3 rounded-lg border-2 text-left transition-all text-gray-700
                   ${formData.educationLevel === level.value
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
                     : 'border-gray-200 hover:border-gray-300'
@@ -164,7 +164,7 @@ export default function PlayerProfileForm({ onSubmit }: PlayerProfileFormProps) 
                 type="button"
                 onClick={() => setFormData(prev => ({ ...prev, skillLevel: level.value }))}
                 className={`
-                  p-3 rounded-lg border-2 text-left transition-all
+                  p-3 rounded-lg border-2 text-left transition-all text-gray-700
                   ${formData.skillLevel === level.value
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
                     : 'border-gray-200 hover:border-gray-300'
@@ -189,7 +189,7 @@ export default function PlayerProfileForm({ onSubmit }: PlayerProfileFormProps) 
                 type="button"
                 onClick={() => toggleInterest(interest)}
                 className={`
-                  p-2 rounded-lg border-2 text-sm transition-all
+                  p-2 rounded-lg border-2 text-sm transition-all text-gray-700
                   ${formData.interests?.includes(interest)
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
                     : 'border-gray-200 hover:border-gray-300'
@@ -214,7 +214,7 @@ export default function PlayerProfileForm({ onSubmit }: PlayerProfileFormProps) 
                 type="button"
                 onClick={() => setFormData(prev => ({ ...prev, learningGoals: goal.value }))}
                 className={`
-                  p-3 rounded-lg border-2 text-left transition-all
+                  p-3 rounded-lg border-2 text-left transition-all text-gray-700
                   ${formData.learningGoals === goal.value
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
                     : 'border-gray-200 hover:border-gray-300'
@@ -239,7 +239,7 @@ export default function PlayerProfileForm({ onSubmit }: PlayerProfileFormProps) 
                 type="button"
                 onClick={() => setFormData(prev => ({ ...prev, preferredComplexity: level.value }))}
                 className={`
-                  p-3 rounded-lg border-2 text-center transition-all
+                  p-3 rounded-lg border-2 text-center transition-all text-gray-700
                   ${formData.preferredComplexity === level.value
                     ? 'border-blue-500 bg-blue-50 text-blue-700'
                     : 'border-gray-200 hover:border-gray-300'

@@ -125,7 +125,7 @@ export default function QuizQuestion({
               onClick={() => handleAnswerSelect(option)}
               disabled={isAnswered}
               className={`
-                w-full p-4 text-left rounded-lg border-2 transition-all duration-200
+                w-full p-4 text-left rounded-lg border-2 transition-all duration-200 text-gray-700
                 ${getAnswerClass(option)}
                 ${!isAnswered ? 'cursor-pointer' : 'cursor-default'}
               `}
