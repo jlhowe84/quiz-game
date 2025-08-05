@@ -69,6 +69,29 @@ export default function StepByStepForm({
     setFormData(prev => ({ ...prev, ...newData }))
   }
 
+  // Handle step completion (update data and advance)
+  const handleStepComplete = (newData: Partial<PlayerProfile>) => {
+    const updatedData = { ...formData, ...newData }
+    setFormData(updatedData)
+    
+    // Check if the current step is now valid after the update
+    const isStepValid = currentStepData.validation ? currentStepData.validation(updatedData) : true
+    
+    // Skip auto-advancement for InterestsStep to allow multiple selections
+    if (currentStepData.id === 'interests') {
+      return
+    }
+    
+    // Only advance if the step is valid
+    if (isStepValid) {
+      // Advance to next step after 1 second to allow user to see their selection
+      setTimeout(() => {
+        setDirection('forward')
+        setCurrentStep(prev => prev + 1)
+      }, 1000)
+    }
+  }
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -114,7 +137,7 @@ export default function StepByStepForm({
         >
           <StepComponent
             data={formData}
-            onNext={handleStepDataUpdate}
+            onNext={currentStepData.id === 'interests' ? handleStepDataUpdate : handleStepComplete}
             onBack={handleBack}
             onSkip={currentStepData.canSkip ? handleSkip : undefined}
             currentStep={currentStep + 1}
