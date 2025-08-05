@@ -2,7 +2,8 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import PlayerProfileForm from '@/components/PlayerProfileForm'
+import StepByStepForm from '@/components/forms/StepByStepForm'
+import { formSteps } from '@/components/forms/steps'
 import CategoryCard from '@/components/CategoryCard'
 import QuizSession from '@/components/QuizSession'
 import { PlayerProfile, Category } from '@/types'
@@ -290,7 +291,10 @@ export default function Home() {
               exit={{ opacity: 0, x: 20 }}
               transition={{ duration: 0.3 }}
             >
-              <PlayerProfileForm onSubmit={handleProfileSubmit} />
+              <StepByStepForm
+                steps={formSteps}
+                onSubmit={handleProfileSubmit}
+              />
             </motion.div>
           )}
 
